@@ -81,7 +81,7 @@ export default function Hero() {
           </span>
           <h1
             ref={titleRef}
-            className="text-8xl md:text-8xl lg:text-9xl font-serif text-warm-cream tracking-tighter mb-8 leading-[0.9]"
+            className="text-7xl md:text-8xl lg:text-9xl font-serif text-warm-cream tracking-tighter mb-8 leading-[0.9]"
           >
             Tradition <br />
             <span className="italic">Crafted</span> by Hand
