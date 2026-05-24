@@ -23,26 +23,28 @@ function OrderSuccessContent() {
   const router = useRouter();
   const clearCart = useCart((state) => state.clearCart);
 
-  const sessionId = searchParams.get('session_id');
+  const orderId = searchParams.get('order_id');
+  const token = searchParams.get('token');
   const [order, setOrder] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const cartClearedRef = useRef(false);
 
-  // 1. Fetch order details from the database using Stripe Session ID
+  // 1. Fetch order details from the database using Razorpay Order ID
   useEffect(() => {
-    if (!sessionId) {
+    if (!orderId) {
       router.push('/');
       return;
     }
 
     async function fetchOrder() {
       try {
-        const res = await fetch(`/api/orders/by-session/${sessionId}`);
+        const url = `/api/orders/by-razorpay-order/${orderId}${token ? `?token=${encodeURIComponent(token)}` : ''}`;
+        const res = await fetch(url);
         if (res.ok) {
           const data = await res.json();
           setOrder(data);
         } else {
-          // Redirect if order not found
+          // Redirect if order not found or unauthorized
           router.push('/');
         }
       } catch (err) {
@@ -54,7 +56,7 @@ function OrderSuccessContent() {
     }
 
     fetchOrder();
-  }, [sessionId, router]);
+  }, [orderId, token, router]);
 
   // 2. Perform one-time cart clearing upon successful order confirmation loading
   useEffect(() => {

@@ -301,7 +301,7 @@ export default function CartPage() {
                   </Link>
                 )}
                 <p className="text-[10px] text-center text-amber-950/40 leading-relaxed font-light">
-                  Secure checkout powered by Stripe. Fresh products shipped with temperature-controlled cold packs.
+                  Secure checkout powered by Razorpay. Fresh products shipped with temperature-controlled cold packs.
                 </p>
               </div>
             </div>

@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Stripe from 'stripe';
+import Razorpay from 'razorpay';
 import { connectDB } from '@/lib/mongodb';
 import Order from '@/lib/models/Order';
 import { verifySessionToken } from '@/lib/auth';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-01-27.acacia' as any,
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID || 'mock_key',
+  key_secret: process.env.RAZORPAY_KEY_SECRET || 'mock_secret',
 });
 
 type RouteContext = {
@@ -20,7 +21,7 @@ async function checkAdmin(request: NextRequest) {
 
 /**
  * POST /api/admin/orders/[id]/refund
- * Triggers a Stripe payment refund and marks order as refunded.
+ * Triggers a Razorpay payment refund and marks order as refunded.
  */
 export async function POST(request: NextRequest, { params }: RouteContext) {
   try {
@@ -43,21 +44,32 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
       );
     }
 
-    if (!order.stripePaymentIntentId) {
+    if (!order.razorpayPaymentId && !order.stripePaymentIntentId) {
       return NextResponse.json(
-        { error: 'Stripe Payment Intent ID is missing for this order. Refund cannot be initiated.' },
+        { error: 'Payment transaction identifier is missing for this order. Refund cannot be initiated.' },
         { status: 400 }
       );
     }
 
-    console.log(`Initiating Stripe refund for PaymentIntent ${order.stripePaymentIntentId} (Order: ${order.orderNumber})...`);
-
     try {
-      const refund = await stripe.refunds.create({
-        payment_intent: order.stripePaymentIntentId,
-      });
+      if (order.razorpayPaymentId) {
+        console.log(`Initiating Razorpay refund for Payment ID ${order.razorpayPaymentId} (Order: ${order.orderNumber})...`);
+        
+        const refund = await razorpay.payments.refund(order.razorpayPaymentId, {
+          notes: {
+            orderNumber: order.orderNumber,
+            reason: 'Admin initiated refund via dashboard',
+          }
+        });
 
-      console.log('Stripe Refund response status:', refund.status);
+        console.log('Razorpay Refund response status:', refund.status);
+      } else {
+        console.warn(`Stripe payment refund requested but Stripe SDK is uninstalled. Transaction ID: ${order.stripePaymentIntentId}`);
+        return NextResponse.json(
+          { error: 'Stripe refund cannot be processed as the application has migrated to Razorpay. Please refund manually in the Stripe Dashboard.' },
+          { status: 400 }
+        );
+      }
 
       // Update order state
       order.paymentStatus = 'refunded';
@@ -65,10 +77,10 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
       await order.save();
 
       return NextResponse.json(order, { status: 200 });
-    } catch (stripeError: any) {
-      console.error('Stripe Refund API error:', stripeError);
+    } catch (rzpError: any) {
+      console.error('Razorpay Refund API error:', rzpError);
       return NextResponse.json(
-        { error: stripeError.message || 'Stripe refund processing failed.' },
+        { error: rzpError.message || 'Razorpay refund processing failed.' },
         { status: 400 }
       );
     }

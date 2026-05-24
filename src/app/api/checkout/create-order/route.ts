@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Stripe from 'stripe';
+import Razorpay from 'razorpay';
 import { connectDB } from '@/lib/mongodb';
 import Product from '@/lib/models/Product';
+import Order from '@/lib/models/Order';
 import { rateLimit, getClientIp } from '@/lib/rateLimit';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-01-27.acacia' as any, // fallback to latest stable behavior
+// Initialize Razorpay client
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID || 'mock_key',
+  key_secret: process.env.RAZORPAY_KEY_SECRET || 'mock_secret',
 });
 
 interface CheckoutItemInput {
@@ -65,7 +68,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 4. Server-Side Price & Stock Verification (Crucial Security Check)
-    const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
+    const lineItemsForDB = [];
     let subtotal = 0;
 
     for (const item of items as CheckoutItemInput[]) {
@@ -91,29 +94,15 @@ export async function POST(request: NextRequest) {
       // Accumulate subtotal using the server-side price (ignore any prices sent from the client)
       subtotal += dbProduct.price * item.quantity;
 
-      // Construct Stripe line item
-      const mainImage = dbProduct.images[0]?.url || '';
-      
-      // Ensure absolute image URL if possible, otherwise skip sending it to Stripe
-      const absoluteImages = mainImage 
-        ? [new URL(mainImage, process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000').toString()] 
-        : [];
+      // Construct DB order item
+      const mainImage = dbProduct.images[0]?.url || '/images/placeholder.jpg';
 
-      lineItems.push({
-        price_data: {
-          currency: 'inr',
-          product_data: {
-            name: dbProduct.name,
-            description: dbProduct.shortDescription,
-            images: absoluteImages,
-            metadata: {
-              productId: dbProduct._id.toString(),
-              slug: dbProduct.slug,
-            },
-          },
-          unit_amount: Math.round(dbProduct.price * 100), // convert to paise
-        },
+      lineItemsForDB.push({
+        productId: dbProduct._id,
+        name: dbProduct.name,
+        price: dbProduct.price,
         quantity: item.quantity,
+        image: mainImage,
       });
     }
 
@@ -125,75 +114,68 @@ export async function POST(request: NextRequest) {
       shippingCost = 0; // Free shipping threshold
     }
 
-    // 6. Create Stripe Checkout Session
-    const successUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/order/success?session_id={CHECKOUT_SESSION_ID}`;
-    const cancelUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/checkout`;
+    const total = subtotal + shippingCost;
 
-    const sessionParams: Stripe.Checkout.SessionCreateParams = {
-      payment_method_types: ['card'],
-      line_items: lineItems,
-      mode: 'payment',
-      customer_email: customerInfo.email,
-      success_url: successUrl,
-      cancel_url: cancelUrl,
-      metadata: {
-        customerInfo: JSON.stringify(customerInfo),
-        shippingAddress: JSON.stringify(shippingAddress),
-        shippingMethod: shippingMethod,
-      },
-    };
-
-    // Include shipping rate if cost is greater than 0
-    if (shippingCost > 0) {
-      sessionParams.shipping_options = [
-        {
-          shipping_rate_data: {
-            type: 'fixed_amount',
-            fixed_amount: {
-              amount: Math.round(shippingCost * 100), // paise
-              currency: 'inr',
-            },
-            display_name: shippingMethod === 'express' ? 'Express Delivery' : 'Standard Delivery',
-            delivery_estimate: {
-              minimum: {
-                unit: 'business_day',
-                value: shippingMethod === 'express' ? 2 : 5,
-              },
-              maximum: {
-                unit: 'business_day',
-                value: shippingMethod === 'express' ? 3 : 7,
-              },
-            },
-          },
-        },
-      ];
-    } else {
-      // Free Shipping
-      sessionParams.shipping_options = [
-        {
-          shipping_rate_data: {
-            type: 'fixed_amount',
-            fixed_amount: {
-              amount: 0,
-              currency: 'inr',
-            },
-            display_name: 'Free Standard Delivery (Orders over ₹999)',
-            delivery_estimate: {
-              minimum: { unit: 'business_day', value: 5 },
-              maximum: { unit: 'business_day', value: 7 },
-            },
-          },
-        },
-      ];
+    // 6. Create Razorpay Order
+    if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+      console.error('Razorpay key credentials missing from environment variables.');
+      return NextResponse.json(
+        { error: 'Payment gateway configuration error.' },
+        { status: 500 }
+      );
     }
 
-    const session = await stripe.checkout.sessions.create(sessionParams);
+    const rzpOrderOptions = {
+      amount: Math.round(total * 100), // paise
+      currency: 'INR',
+      receipt: `rcpt_${Math.floor(100000 + Math.random() * 900000)}`,
+      notes: {
+        customerEmail: customerInfo.email,
+        customerPhone: customerInfo.phone.replace(/[\s\-]/g, ''),
+      }
+    };
 
-    return NextResponse.json({ sessionId: session.id, url: session.url }, { status: 200 });
+    const rzpOrder = await razorpay.orders.create(rzpOrderOptions);
+
+    // 7. Save pending Order Document in MongoDB
+    const order = new Order({
+      customer: {
+        name: customerInfo.name,
+        email: customerInfo.email,
+        phone: customerInfo.phone.replace(/[\s\-]/g, ''),
+      },
+      shippingAddress: {
+        line1: shippingAddress.line1,
+        line2: shippingAddress.line2 || '',
+        city: shippingAddress.city,
+        state: shippingAddress.state,
+        pincode: shippingAddress.pincode,
+        country: shippingAddress.country || 'India',
+      },
+      items: lineItemsForDB,
+      subtotal: subtotal,
+      shippingCost: shippingCost,
+      total: total,
+      status: 'pending',
+      paymentStatus: 'pending',
+      razorpayOrderId: rzpOrder.id,
+      notes: customerInfo.notes || '',
+    });
+
+    await order.save();
+    console.log(`Pending Order created for Razorpay Order: ${rzpOrder.id}. Order number: ${order.orderNumber}`);
+
+    return NextResponse.json({
+      razorpayOrderId: rzpOrder.id,
+      amount: rzpOrder.amount,
+      currency: rzpOrder.currency,
+      orderNumber: order.orderNumber,
+    }, { status: 200 });
+
   } catch (error: any) {
-    console.error('Stripe Session Creation Failure:', error);
+    console.error('Razorpay Order Creation Failure:', error);
     return NextResponse.json(
-      { error: 'An error occurred during Stripe session checkout creation.' },
+      { error: 'An error occurred during Razorpay order checkout creation.' },
       { status: 500 }
     );
   }

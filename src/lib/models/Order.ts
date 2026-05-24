@@ -33,8 +33,11 @@ export interface IOrder {
   total: number;
   status: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'refunded';
   paymentStatus: 'pending' | 'paid' | 'failed' | 'refunded';
-  stripeSessionId: string;
-  stripePaymentIntentId: string;
+  stripeSessionId?: string;
+  stripePaymentIntentId?: string;
+  razorpayOrderId: string;
+  razorpayPaymentId?: string;
+  razorpaySignature?: string;
   trackingNumber?: string;
   notes?: string;
   createdAt: Date;
@@ -87,8 +90,11 @@ const orderSchema = new Schema<IOrderDocument>(
       enum: ['pending', 'paid', 'failed', 'refunded'],
       default: 'pending'
     },
-    stripeSessionId: { type: String, required: true },
-    stripePaymentIntentId: { type: String, required: true },
+    stripeSessionId: { type: String },
+    stripePaymentIntentId: { type: String },
+    razorpayOrderId: { type: String, required: true, unique: true, index: true },
+    razorpayPaymentId: { type: String },
+    razorpaySignature: { type: String },
     trackingNumber: { type: String },
     notes: { type: String }
   },

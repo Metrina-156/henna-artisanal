@@ -11,30 +11,30 @@
   },
   "dependencies": {
     "@studio-freight/react-lenis": "^0.0.47",
+    "bcryptjs": "^2.4.3",
+    "cloudinary": "^2.5.1",
     "clsx": "^2.1.1",
     "framer-motion": "^12.38.0",
     "gsap": "^3.15.0",
     "lucide-react": "^1.16.0",
+    "mongoose": "^8.12.0",
     "next": "16.2.6",
+    "razorpay": "^2.9.6",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "tailwind-merge": "^3.6.0",
-    "zustand": "^5.0.13",
-    "mongoose": "^8.12.0",
-    "stripe": "^14.0.0",
-    "bcryptjs": "^2.4.3",
-    "cloudinary": "^2.5.1"
+    "zustand": "^5.0.13"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
     "tailwindcss": "^4",
-    "typescript": "^5",
     "tsx": "^4.19.2",
-    "@types/bcryptjs": "^2.4.6"
+    "typescript": "^5"
   }
 }

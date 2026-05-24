@@ -101,3 +101,30 @@ export async function verifySessionToken(
     return null;
   }
 }
+
+/**
+ * Signs a guest order token to authenticate guests viewing their checkout success receipt.
+ */
+export async function signGuestOrderToken(orderId: string): Promise<string> {
+  const key = await getCryptoKey(JWT_SECRET);
+  const encoder = new TextEncoder();
+  const signatureBuffer = await crypto.subtle.sign('HMAC', key, encoder.encode(orderId));
+  return arrayBufferToBase64(signatureBuffer);
+}
+
+/**
+ * Verifies a guest order token against the given order ID.
+ */
+export async function verifyGuestOrderToken(orderId: string, token: string): Promise<boolean> {
+  if (!token) return false;
+  try {
+    const key = await getCryptoKey(JWT_SECRET);
+    const encoder = new TextEncoder();
+    const sigBuffer = base64ToArrayBuffer(token);
+    return await crypto.subtle.verify('HMAC', key, sigBuffer, encoder.encode(orderId));
+  } catch (error) {
+    console.error('Guest order token verification failed:', error);
+    return false;
+  }
+}
+

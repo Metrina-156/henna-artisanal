@@ -66,6 +66,13 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     setMounted(true);
+    // Dynamically load Razorpay SDK on mount
+    if (typeof window !== 'undefined' && !(window as any).Razorpay) {
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.async = true;
+      document.body.appendChild(script);
+    }
   }, []);
 
   // Redirect to cart if empty, but ONLY after rehydration mount check
@@ -173,14 +180,29 @@ export default function CheckoutPage() {
     setIsSubmitting(true);
 
     try {
+      // 1. Verify Razorpay SDK is loaded
+      if (typeof window !== 'undefined' && !(window as any).Razorpay) {
+        const loadScript = () => new Promise((resolve) => {
+          const script = document.createElement('script');
+          script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+          script.onload = () => resolve(true);
+          script.onerror = () => resolve(false);
+          document.body.appendChild(script);
+        });
+        const loaded = await loadScript();
+        if (!loaded) {
+          throw new Error('Failed to load Razorpay payment gateway. Please check your internet connection.');
+        }
+      }
+
       // Map cart items for database check
       const cartItemsInput = items.map((item) => ({
         productId: item.productId,
         quantity: item.quantity,
       }));
 
-      // Call API to create a Stripe checkout session
-      const response = await fetch('/api/checkout/create-session', {
+      // Call API to create a Razorpay checkout order
+      const response = await fetch('/api/checkout/create-order', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -208,17 +230,65 @@ export default function CheckoutPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Checkout session initiation failed.');
+        throw new Error(data.error || 'Checkout order initiation failed.');
       }
 
-      // Redirect client to Stripe Hosted checkout page
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        throw new Error('Stripe checkout URL missing from response.');
-      }
+      // Trigger Razorpay payment modal
+      const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || '',
+        amount: data.amount,
+        currency: data.currency,
+        name: 'Henna Artisanal',
+        description: `Payment for Order #${data.orderNumber}`,
+        order_id: data.razorpayOrderId,
+        handler: async function (paymentResponse: any) {
+          try {
+            setIsSubmitting(true);
+            const verifyResponse = await fetch('/api/checkout/verify-payment', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                razorpay_payment_id: paymentResponse.razorpay_payment_id,
+                razorpay_order_id: paymentResponse.razorpay_order_id,
+                razorpay_signature: paymentResponse.razorpay_signature,
+              }),
+            });
+
+            const verifyData = await verifyResponse.json();
+
+            if (!verifyResponse.ok) {
+              throw new Error(verifyData.error || 'Payment verification failed.');
+            }
+
+            // Redirect to success page on successful verification with guestToken authorization
+            router.push(`/order/success?order_id=${paymentResponse.razorpay_order_id}&token=${verifyData.guestToken}`);
+          } catch (err: any) {
+            console.error('Payment Verification Error:', err);
+            setSubmitError(err.message || 'Payment succeeded, but signature verification failed. Please contact support.');
+            setIsSubmitting(false);
+          }
+        },
+        prefill: {
+          name: formData.name,
+          email: formData.email,
+          contact: formData.phone.replace(/[\s\-]/g, ''),
+        },
+        theme: {
+          color: '#8B3A2A',
+        },
+        modal: {
+          ondismiss: function () {
+            setIsSubmitting(false);
+          },
+        },
+      };
+
+      const rzp = new (window as any).Razorpay(options);
+      rzp.open();
     } catch (error: any) {
-      console.error('Checkout Redirection Error:', error);
+      console.error('Checkout Error:', error);
       setSubmitError(error.message || 'An unexpected error occurred. Please try again.');
       setIsSubmitting(false);
     }
@@ -548,7 +618,7 @@ export default function CheckoutPage() {
               </button>
 
               <p className="text-[10px] text-amber-950/40 text-center leading-relaxed font-light">
-                By placing this order you agree to our terms. Your transaction is encrypted and secured by Stripe.
+                By placing this order you agree to our terms. Your transaction is encrypted and secured by Razorpay.
               </p>
 
             </div>

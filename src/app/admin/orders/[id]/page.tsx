@@ -38,8 +38,11 @@ interface Order {
   total: number;
   status: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'refunded';
   paymentStatus: 'pending' | 'paid' | 'failed' | 'refunded';
-  stripeSessionId: string;
-  stripePaymentIntentId: string;
+  stripeSessionId?: string;
+  stripePaymentIntentId?: string;
+  razorpayOrderId?: string;
+  razorpayPaymentId?: string;
+  razorpaySignature?: string;
   trackingNumber?: string;
   notes?: string;
   createdAt: string;
@@ -148,7 +151,7 @@ export default function OrderDetailsPage({ params }: OrderDetailsPageProps) {
       setShowRefundModal(false);
     } catch (err: any) {
       console.error(err);
-      setRefundError(err.message || 'Stripe Refund Request failed.');
+      setRefundError(err.message || 'Razorpay Refund Request failed.');
     } finally {
       setRefunding(false);
     }
@@ -470,9 +473,9 @@ export default function OrderDetailsPage({ params }: OrderDetailsPageProps) {
                 </span>
               </div>
               <div className="border-t border-stone-100 pt-2 space-y-1">
-                <span className="text-[9px] uppercase font-bold text-stone-400 block tracking-wider">Stripe Transaction ID</span>
+                <span className="text-[9px] uppercase font-bold text-stone-400 block tracking-wider">Razorpay Payment ID</span>
                 <span className="text-[10px] font-mono text-stone-600 block break-all bg-stone-50 p-1.5 border border-stone-100 rounded">
-                  {order.stripePaymentIntentId}
+                  {order.razorpayPaymentId || order.stripePaymentIntentId || 'N/A'}
                 </span>
               </div>
             </div>
@@ -535,14 +538,14 @@ export default function OrderDetailsPage({ params }: OrderDetailsPageProps) {
 
       </div>
 
-      {/* Stripe Refund Confirmation Modal */}
+      {/* Razorpay Refund Confirmation Modal */}
       {showRefundModal && (
         <div className="fixed inset-0 bg-stone-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white border border-stone-200 rounded-lg shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
             <div className="p-6">
-              <h3 className="font-serif text-lg font-bold text-stone-950">Refund Stripe Payment?</h3>
+              <h3 className="font-serif text-lg font-bold text-stone-950">Refund Razorpay Payment?</h3>
               <p className="text-xs text-stone-400 mt-2 leading-relaxed">
-                This will trigger a full refund of <span className="font-bold text-stone-900">₹{order.total.toLocaleString('en-IN')}</span> through Stripe back to the customer's payment method. This cannot be reversed.
+                This will trigger a full refund of <span className="font-bold text-stone-900">₹{order.total.toLocaleString('en-IN')}</span> through Razorpay back to the customer's payment method. This cannot be reversed.
               </p>
 
               {refundError && (
