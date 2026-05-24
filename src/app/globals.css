@@ -1,26 +1,73 @@
 @import "tailwindcss";
 
+@theme {
+  --font-serif: var(--font-bodoni), serif;
+  --font-sans: var(--font-jost), sans-serif;
+  --font-decorative: var(--font-caveat), cursive;
+
+  /* OKLCH Color Palette */
+  --color-henna-deep: oklch(0.28 0.05 32);
+  --color-terracotta: oklch(0.58 0.11 48);
+  --color-sage: oklch(0.72 0.04 145);
+  --color-warm-cream: oklch(0.97 0.01 85);
+  --color-sandstone: oklch(0.88 0.03 78);
+  --color-muted-gold: oklch(0.82 0.08 92);
+
+  /* Semantic Roles */
+  --color-background: var(--color-warm-cream);
+  --color-foreground: var(--color-henna-deep);
+  --color-accent: var(--color-muted-gold);
+
+  /* Animation Durations */
+  --duration-fast: 150ms;
+  --duration-normal: 300ms;
+  --duration-slow: 600ms;
+  --duration-cinematic: 1200ms;
+
+  /* Easing */
+  --ease-exponential: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: var(--color-warm-cream);
+  --foreground: var(--color-henna-deep);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  border-color: var(--color-terracotta);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-serif);
+}
+
+.font-decorative {
+  font-family: var(--font-decorative);
+}
+
+/* Base Utility for smooth scrolling */
+html {
+  scroll-behavior: auto; /* Managed by Lenis */
+}
+
+/* Accessibility: Respect prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-delay: -1ms !important;
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    background-attachment: initial !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0s !important;
+    transition-delay: 0s !important;
+  }
 }

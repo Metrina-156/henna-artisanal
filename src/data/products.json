@@ -1,0 +1,65 @@
+[
+  {
+    "id": "fresh-cone-signature",
+    "name": "Signature Fresh Henna Cone",
+    "price": 8.00,
+    "category": "Fresh Cones",
+    "description": "Hand-rolled and filled with our signature triple-sifted Sojat henna paste. Prepared in small batches with premium essential oils for dark, long-lasting stains.",
+    "ingredients": [
+      "Organic Sojat Henna",
+      "Cajeput Oil",
+      "Lavender Oil",
+      "Sugar",
+      "Water"
+    ],
+    "image": "/images/products/cone-signature.jpg",
+    "texture": "Smooth, creamy, and elastic.",
+    "ritual": "Apply to clean skin. Leave for 6-8 hours. Seal with lemon-sugar water."
+  },
+  {
+    "id": "organic-powder-250g",
+    "name": "Triple-Sifted Sojat Powder",
+    "price": 24.00,
+    "category": "Powders",
+    "description": "Our finest professional-grade henna powder. Sourced directly from farms in Rajasthan, triple-sifted for an incredibly smooth paste consistency.",
+    "ingredients": [
+      "100% Organic Lawsonia Inermis"
+    ],
+    "image": "/images/products/sojat-powders.jpg",
+    "texture": "Ultra-fine silky powder.",
+    "ritual": "Mix with warm water and essential oils. Allow dye release for 12-24 hours."
+  },
+  {
+    "id": "bridal-kit-essential",
+    "name": "Essential Bridal Kit",
+    "price": 65.00,
+    "category": "Kits",
+    "description": "Everything an artist needs for a complete bridal application. Includes fresh cones, aftercare oil, and sealant spray.",
+    "ingredients": [
+      "5 Signature Cones",
+      "30ml Aftercare Oil",
+      "50ml Sealant Spray",
+      "Practice Sheets"
+    ],
+    "image": "/images/products/bridal-kit.jpg",
+    "texture": "Comprehensive artisanal set.",
+    "ritual": "Follow the included Artisan Guide for the ultimate bridal stain."
+  },
+  {
+    "id": "herbal-hair-mask",
+    "name": "Botanical Hair Strengthening Mask",
+    "price": 32.00,
+    "category": "Herbal Care",
+    "description": "A potent blend of henna, amla, and brahmi to strengthen hair roots and add natural shine without intense coloring.",
+    "ingredients": [
+      "Henna",
+      "Amla",
+      "Brahmi",
+      "Shikakai",
+      "Bhringraj"
+    ],
+    "image": "/images/products/ultimate-kits.jpg",
+    "texture": "Earthy powder blend.",
+    "ritual": "Mix into a paste with yogurt or water. Apply for 45 minutes once a week."
+  }
+]
