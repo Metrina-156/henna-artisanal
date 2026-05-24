@@ -108,8 +108,13 @@ export default function Navbar() {
             {/* Hamburger — triggers mega menu on desktop, mobile drawer on mobile */}
             <button
               onClick={() => {
-                setMegaMenuOpen(!isMegaMenuOpen);
-                if (isMobileMenuOpen) setIsMobileMenuOpen(false);
+                if (window.innerWidth < 768) {
+                  setIsMobileMenuOpen(true);
+                  setMegaMenuOpen(false);
+                } else {
+                  setMegaMenuOpen(!isMegaMenuOpen);
+                  if (isMobileMenuOpen) setIsMobileMenuOpen(false);
+                }
               }}
               className="p-2 -ml-2 hover:bg-amber-950/5 rounded-full transition-colors"
               aria-label={isMegaMenuOpen ? 'Close menu' : 'Open menu'}
@@ -181,18 +186,6 @@ export default function Navbar() {
             </button>
 
             <CartIcon isDark={isScrolled || isMegaMenuOpen || pathname !== '/'} />
-
-            {/* Mobile hamburger (opens mobile drawer) */}
-            <button
-              onClick={() => {
-                setIsMobileMenuOpen(true);
-                setMegaMenuOpen(false);
-              }}
-              className="p-2 md:hidden hover:bg-amber-950/5 rounded-full transition-colors"
-              aria-label="Open mobile menu"
-            >
-              <Menu size={22} className='text-amber-950' />
-            </button>
           </div>
         </div>
 

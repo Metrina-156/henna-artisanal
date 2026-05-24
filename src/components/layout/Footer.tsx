@@ -24,10 +24,10 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto">
 
         {/* Main Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
 
           {/* Brand Identity */}
-          <div className="lg:col-span-1">
+          <div className="col-span-2 md:col-span-1">
             <Link href="/" aria-label="Artisanal Henna - Home">
               <h2 className="text-2xl font-serif tracking-tighter mb-4 hover:text-[#C9A96E] transition-colors">
                 Artisanal <span className="italic">Henna</span>
@@ -43,7 +43,7 @@ export default function Footer() {
           </div>
 
           {/* Collection Links */}
-          <div>
+          <div className="col-span-1">
             <h4 className="text-[10px] uppercase tracking-widest font-bold mb-6 text-[#F5EFE6]/40">
               Collections
             </h4>
@@ -62,7 +62,7 @@ export default function Footer() {
           </div>
 
           {/* Quick Links */}
-          <div>
+          <div className="col-span-1">
             <h4 className="text-[10px] uppercase tracking-widest font-bold mb-6 text-[#F5EFE6]/40">
               Quick Links
             </h4>
@@ -81,7 +81,7 @@ export default function Footer() {
           </div>
 
           {/* Newsletter */}
-          <div>
+          <div className="col-span-2 md:col-span-1">
             <h4 className="text-[10px] uppercase tracking-widest font-bold mb-6 text-[#F5EFE6]/40">
               Join the Circle
             </h4>

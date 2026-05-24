@@ -52,15 +52,15 @@ export default function Hero() {
       className="relative h-[100vh] w-full overflow-hidden flex items-center justify-center"
     >
       {/* Background Image with Parallax */}
-      <div 
+      <div
         ref={imageRef}
         className="absolute inset-0 z-0 h-[120%]"
       >
-        <div 
-          className="absolute inset-0 z-10" 
+        <div
+          className="absolute inset-0 z-10"
           style={{ backgroundColor: 'rgba(0,0,0,0.35)' }}
         /> {/* Overlay */}
-        <Image          src={PEXELS_HERO}
+        <Image src={PEXELS_HERO}
           alt="Artisanal Henna Ritual"
           fill
           priority
@@ -76,12 +76,12 @@ export default function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
         >
-          <span className="text-xs md:text-sm uppercase tracking-[0.3em] font-bold text-warm-cream/80 mb-6 block">
+          <span className="text-[13px] md:text-sm uppercase tracking-[0.3em] font-bold text-warm-cream/80 mb-6 block">
             Pure. Natural. Artisanal.
           </span>
           <h1
             ref={titleRef}
-            className="text-5xl md:text-8xl lg:text-9xl font-serif text-warm-cream tracking-tighter mb-8 leading-[0.9]"
+            className="text-8xl md:text-8xl lg:text-9xl font-serif text-warm-cream tracking-tighter mb-8 leading-[0.9]"
           >
             Tradition <br />
             <span className="italic">Crafted</span> by Hand
