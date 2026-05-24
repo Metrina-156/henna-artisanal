@@ -89,16 +89,16 @@ export default function Hero() {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mt-12">
             <Link
-              href="/shop"
+              href="/products"
               className="px-10 py-4 bg-muted-gold text-henna-deep text-sm uppercase tracking-widest font-bold hover:bg-warm-cream transition-colors duration-300"
             >
               Shop the Collection
             </Link>
             <Link
-              href="/rituals"
+              href="/products"
               className="px-10 py-4 border border-warm-cream/30 text-warm-cream text-sm uppercase tracking-widest font-bold hover:bg-warm-cream hover:text-henna-deep transition-all duration-300"
             >
-              Discover the Ritual
+              Browse Products
             </Link>
           </div>
         </motion.div>

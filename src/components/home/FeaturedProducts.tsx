@@ -70,44 +70,37 @@ export default function FeaturedProducts() {
                 index === 3 && "lg:col-span-8 md:translate-y-24 lg:translate-y-0 lg:pt-32"
               )}
             >
-              <div className="relative aspect-[4/5] overflow-hidden rounded-lg bg-warm-cream/50 mb-8">
-                <div className="w-full h-full relative transition-transform duration-700 group-hover:scale-105">
-                  <Image
-                    src={product.image}
-                    alt={product.name}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  />
+              <Link href={`/products`} className="hover:text-terracotta transition-colors">
+                <div className="relative aspect-[4/5] overflow-hidden rounded-lg bg-warm-cream/50 mb-8">
+                  <div className="w-full h-full relative transition-transform duration-700 group-hover:scale-105">
+                    <Image
+                      src={product.image}
+                      alt={product.name}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    />
+                  </div>
+
+
+
+                  <div className="absolute top-6 left-6">
+                    <span className="bg-warm-cream/90 backdrop-blur-sm px-4 py-1 text-[10px] uppercase tracking-widest font-bold text-henna-deep">
+                      {product.category}
+                    </span>
+                  </div>
                 </div>
 
-                <div className="absolute inset-0 bg-henna-deep/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center pointer-events-none">
-                  <button
-                    onClick={() => addToCart({ ...product, quantity: 1 })}
-                    className="bg-warm-cream text-henna-deep px-8 py-4 text-xs uppercase tracking-widest font-bold shadow-xl pointer-events-auto transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500"
-                  >
-                    Quick Add
-                  </button>
-                </div>
-
-                <div className="absolute top-6 left-6">
-                  <span className="bg-warm-cream/90 backdrop-blur-sm px-4 py-1 text-[10px] uppercase tracking-widest font-bold text-henna-deep">
-                    {product.category}
-                  </span>
-                </div>
-              </div>
-
-              <div className="flex justify-between items-start gap-4">
-                <div>
-                  <h3 className="text-xl font-serif text-henna-deep mb-2">
-                    <Link href={`/product/${product.id}`} className="hover:text-terracotta transition-colors">
+                <div className="flex justify-between items-start gap-4">
+                  <div>
+                    <h3 className="text-xl font-serif text-henna-deep mb-2">
                       {product.name}
-                    </Link>
-                  </h3>
-                  <p className="text-xs text-henna-deep/50 uppercase tracking-widest mb-4">{product.texture}</p>
+                    </h3>
+                    <p className="text-xs text-henna-deep/50 uppercase tracking-widest mb-4">{product.texture}</p>
+
+                  </div>
                 </div>
-                <p className="text-lg font-medium text-terracotta">${product.price.toFixed(2)}</p>
-              </div>
+              </Link>
             </motion.div>
           ))}
         </div>

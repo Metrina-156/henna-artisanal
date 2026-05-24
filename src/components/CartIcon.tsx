@@ -7,14 +7,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 interface CartIconProps {
   onClick?: () => void;
+  isDark?: boolean;
 }
 
-export default function CartIcon({ onClick }: CartIconProps) {
+export default function CartIcon({ onClick, isDark = true }: CartIconProps) {
   const { setCartOpen } = useUIStore();
-  
+
   // Safe SSR reading for count
   const cartItems = useCartStore((state) => state.items);
-  
+
   const cartCount = cartItems
     ? cartItems.reduce((acc, item) => acc + item.quantity, 0)
     : 0;
@@ -30,11 +31,12 @@ export default function CartIcon({ onClick }: CartIconProps) {
   return (
     <button
       onClick={handleClick}
-      className="p-3 hover:bg-amber-900/5 rounded-full transition-colors relative text-amber-950 flex items-center justify-center focus:outline-none"
+      className={`p-3 hover:bg-amber-900/5 rounded-full transition-colors relative flex items-center justify-center focus:outline-none ${isDark ? 'text-amber-950' : 'text-amber-950'
+        }`}
       aria-label="View Shopping Cart"
     >
       <ShoppingBag size={24} />
-      
+
       <AnimatePresence>
         {cartCount > 0 && (
           <motion.span
