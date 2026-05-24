@@ -242,10 +242,11 @@ export default function Navbar() {
           </div>
         )}
 
-        {/* Global Drawer and Toast */}
-        <CartDrawer />
-        <Toast />
       </nav>
+
+      {/* Global Drawer and Toast */}
+      <CartDrawer />
+      <Toast />
 
       {/* ── Mobile Full-Screen Menu Drawer ── */}
       {isMobileMenuOpen && (

@@ -98,7 +98,7 @@ export default function ProductAddToCart({ product }: ProductAddToCartProps) {
         <button
           onClick={handleAddToCart}
           disabled={isOutOfStock}
-          className="flex-1 bg-[#8B3A2A] hover:bg-[#8B3A2A]/90 disabled:bg-stone-300 disabled:text-stone-500 disabled:cursor-not-allowed text-[#F5EFE6] h-14 px-8 text-xs font-bold uppercase tracking-widest transition-all duration-300 flex items-center justify-center gap-3 shadow-md hover:shadow-lg rounded-sm"
+          className="w-full sm:flex-1 bg-[#8B3A2A] hover:bg-[#8B3A2A]/90 disabled:bg-stone-300 disabled:text-stone-500 disabled:cursor-not-allowed text-[#F5EFE6] h-14 px-8 text-xs font-bold uppercase tracking-widest transition-all duration-300 flex items-center justify-center gap-3 shadow-md hover:shadow-lg rounded-sm"
         >
           <ShoppingBag size={16} />
           <span>{isOutOfStock ? 'Sold Out' : 'Add to Cart'}</span>

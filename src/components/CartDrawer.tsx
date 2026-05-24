@@ -106,8 +106,8 @@ export default function CartDrawer() {
                         {/* Image */}
                         <div className="relative w-16 h-20 bg-stone-200 rounded-md overflow-hidden flex-shrink-0 border border-amber-900/5">
                           <Image
-                            src={item.image}
-                            alt={item.name}
+                            src={item.image || '/images/placeholder.jpg'}
+                            alt={item.name || 'Product Image'}
                             fill
                             className="object-cover"
                             sizes="64px"
@@ -158,7 +158,7 @@ export default function CartDrawer() {
                   <span className="text-xs uppercase tracking-wider text-amber-950/60 font-bold">Subtotal:</span>
                   <span className="text-xl font-bold text-[#8B3A2A]">₹{subtotal}</span>
                 </div>
-                
+
                 <p className="text-[10px] text-amber-950/50 leading-relaxed font-light">
                   Shipping, taxes, and discounts will be calculated at checkout.
                 </p>
